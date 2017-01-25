@@ -5,6 +5,13 @@ setwd("/Users/David_Jordan/Google Drive/Special Projects/CLTCraftBeer/CLTCraftBe
 #Reading in Craft Beer Data
 Breweries <- read.csv("Beer Data.csv")
 
+#Reading in Beer List Data
+Beer_List <- read.csv("Charlotte Craft Beer List.csv")
+
+#Generating a dataframe of beer styles by brewery
+
+
+
 #Getting the Frequency of Year Opened
 #Brew_Freq <- table(Breweries$Year.Opened)
 #Brew_Freq
@@ -17,7 +24,29 @@ leaflet() %>%
   addProviderTiles("OpenStreetMap") %>%
   addMarkers(data=Breweries,
              icon=beer_bottle, 
-             popup=paste("<b>","Brewery: ","</b>",paste("<a href=",Breweries$Brewery.Website,">",Breweries$Brewery,"</a>"), "<br>", "<b>","Neighborhood: ","</b>", Breweries$Neighborhood,"<br>","<b>","Avg. Yelp Score: ","</b>",Breweries$Average.Yelp.Rating),
+             popup=paste(
+               "<b>",
+               "Brewery: ",
+               "</b>",
+               paste("<a href=",Breweries$Brewery.Website,
+                     ">",
+                     Breweries$Brewery,
+                     "</a>"), 
+               "<br>", 
+               "<b>",
+               "Neighborhood: ",
+               "</b>", 
+               Breweries$Neighborhood,
+               "<br>",
+               "<b>",
+               "Avg. Yelp Score: ",
+               "</b>",
+               Breweries$Average.Yelp.Rating,
+               "<br>",
+               "<b>",
+               "Styles: ",
+               "</b>",
+               ),
              clusterOptions = markerClusterOptions(removeOutsideVisibleBounds = F)
              )
 
