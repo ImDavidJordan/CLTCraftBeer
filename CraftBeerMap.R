@@ -1,15 +1,21 @@
-library(leaflet,rgdal,data.table)
+library(leaflet,rgdal)
 library(shiny)
+library(rsconnect)
+library(data.table)
+library(plotly)
+library(leaflet)
+library(plyr)
+rsconnect::setAccountInfo(name='imdavidjordan', token='AE67CB673B29060AC44C11D499F5F92E', secret='FdmHdvZeFZqsivaudPLAmPmgnI8KgqE5P2Z4eicT')
 
 
 
-setwd("/Users/David_Jordan/Google Drive/Special Projects/CLTCraftBeer/CLTCraftBeer/")
+
 
 #Reading in Craft Beer Data
-Breweries <- read.csv("Beer Data.csv")
+Breweries <- read.csv("Data Folder/Beer Data.csv")
 
 #Reading in Beer List Data
-Beer_List <- read.csv("Charlotte Craft Beer List.csv")
+Beer_List <- read.csv("Data Folder/Charlotte Craft Beer List.csv")
 
 #Generating a dataframe of beer styles by brewery
 Beer_List2 <-data.table(Beer_List)
@@ -30,7 +36,7 @@ Breweries_New <- merge(Breweries, Beer_List3, by="Brewery")
 #Brew_Freq
 
 #Creating Icons for Map Markers
-beer_bottle <- makeIcon("empty-beer-bottle.png","empty-beer-bottle.png",36,36)
+beer_bottle <- makeIcon("bottle.png","bottle.png",36,36)
 
 ui <- navbarPage("Charlotte Craft Breweries Map", id="nav",
                   tabPanel("Interactive Map",
@@ -41,8 +47,15 @@ ui <- navbarPage("Charlotte Craft Breweries Map", id="nav",
                            leafletOutput("CharlotteCraftMap")
                           
                  ),
-                 tabPanel("Data Viewer",
-                          wellPanel(h3("Beer Statistics"), plotlyOutput("BreweryOpen")))
+                 tabPanel("Statistics",
+                          wellPanel(h3("Brewery Statistics"), 
+                                    plotlyOutput("BreweryOpen")
+                                    ),
+                          wellPanel(h3("Beer Statistics"))
+                          ),
+                 tabPanel("Brewery Data Viewer", dataTableOutput("table")
+                          ),
+                 tabPanel("Beer Data Viewer", dataTableOutput("Beers"))
                  )
 
 
@@ -118,8 +131,14 @@ server <- function(input, output, session) {
   #Creating plots from beer data
   output$BreweryOpen<-renderPlotly({
     Brewery_Openings<- count(Breweries_New$Year.Opened)
-    plot_ly(x = ~Brewery_Openings$x, y = ~Brewery_Openings$freq, mode="lines")
+    plot_ly(x = ~Brewery_Openings$x, y = ~Brewery_Openings$freq, mode="lines") %>%
+      layout(xaxis=list(title="Year"),
+             yaxis=list(title="Brewery Openings")
+      )
     })
+  Breweries_New_D <- data.table(subset(Breweries_New,select = c(1:7,9)))
+  output$table <- renderDataTable(Breweries_New_D)
+  output$Beers <- renderDataTable(Beer_List2)
 }
     
 shinyApp(ui, server)
